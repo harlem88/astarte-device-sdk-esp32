@@ -19,6 +19,7 @@
 #include "astarte_bson_types.h"
 #include "astarte_credentials.h"
 #include "astarte_device.h"
+#include "si7021.h"
 
 #define TAG "ASTARTE_TOGGLE_LED"
 
@@ -178,6 +179,16 @@ static void astarte_example_task(void *ctx)
     }
 
     ESP_LOGI(TAG, "[APP] Encoded device ID: %s", astarte_device_get_encoded_id(device));
+    int i2c_init_result;
+
+    if ((i2c_init_result = si7021_init(I2C_NUM_0, GPIO_NUM_21, GPIO_NUM_22, GPIO_PULLUP_ENABLE,
+                               GPIO_PULLUP_ENABLE)
+                == 0)) {
+        float temperature = si7021_read_temperature();
+        ESP_LOGI(TAG, "[APP] read temperature %f", temperature);
+    } else {
+        ESP_LOGE(TAG, "[APP] init i2c error %d", i2c_init_result);
+    }
 
     uint32_t io_num;
     while (1) {
